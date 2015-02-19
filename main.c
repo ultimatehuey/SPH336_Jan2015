@@ -5,7 +5,7 @@
  *
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
- * and/or modify it under the terms of the Do What The Fuck You Want
+ * and/or modify it under the terms of the Do What You Want
  * To Public License, Version 2, as published by Sam Hocevar. See
  * http://www.wtfpl.net/ for more details.
  *
@@ -13,7 +13,6 @@
 #include "Mk60.h"
 
 extern void SystemInit(void);
-//extern void init_uart(UART_MemMapPtr uartch, int sysclk, int baud);
 extern void uartsend(uint8_t ch);
 extern void puts(uint8_t *s);
 extern char uart_read(void);
@@ -25,8 +24,6 @@ void delay(void);
 void toggle_LED1(void);
 void toggle_LED2(void);
 
-//int core_clk_mhz = 96;
-//int periph_clk_khz;
 
 int main(void){	
 	//initialize system
@@ -39,7 +36,6 @@ int main(void){
 	
 	//initialize GPIO ports
 	gpio_init();
-	//init_uart();
 	//infinite loop
 	while(1)
 	{
@@ -47,8 +43,8 @@ int main(void){
 		delay();
 		if(data_ready){
 			byte = uart_read();
+			byte2=byte;
 		}
-		byte2=byte;
 		delay();
 	}
 }
@@ -72,16 +68,16 @@ void gpio_init(void)
 	PE->PCR[8].mux = 0x0;	//clear default function
 	PE->PCR[9].mux = 0x0;	//clear default function
 	PE->PCR[8].mux = 0x3;	//alt3 = UART5_TX
-	PE->PCR[9].mux = 0x3; 	//a;t3 = UART5_RX
-	//GPIO port data direction Port A as output for LEDs (pin 11, 28, 29 and 10), Port E UART5(PTE8 & PTE9)
+	PE->PCR[9].mux = 0x3; 	//alt3 = UART5_RX
+	//GPIO port data direction Port A as output for LEDs (pin 11, 28, 29 and 10), Port E UART5(PTE8 TX, PTE9 RX)
 	GPIOA->PDDR.bit_reg.bit11 = OUT;
 	GPIOA->PDDR.bit_reg.bit28 = OUT;
 	GPIOA->PDDR.bit_reg.bit29 = OUT;
 	GPIOA->PDDR.bit_reg.bit10 = OUT;
 	GPIOE->PDDR.bit_reg.bit8 = OUT; //UART5_TX is an output
-	//No need to configure GPIO for PA19 as an input, by default all pins are inputs
+	//No need to configure GPIO for as an input, by default all pins are inputs
 	//GPIOA->PDDR.bit_reg.bit19 = IN;
-	//GPIOE->PDDR.bit_reg.bit9 = IN
+	//GPIOE->PDDR.bit_reg.bit9 = IN //UART5_RX is an input
 }
 
 
@@ -94,8 +90,7 @@ void toggle_LED1(void){
 void toggle_LED2(void){
 	GPIOA->PTOR.bit_reg.bit28 = ON;
 	GPIOA->PTOR.bit_reg.bit10 = ON;
-	//uartsend(0x02);
-	puts((uint8_t*)"2: Hello World\r\n");
+	puts((uint8_t*)("Hello World\r\n"));
 }
 
 

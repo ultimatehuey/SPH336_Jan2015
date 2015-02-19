@@ -6,26 +6,66 @@ Implemented:
 
 To do:
 make and program the kit with the .elf file generated:
-one one terminal run this command:
+on one terminal run this command:
+---------------------------------
 openocd -c "interface osbdm" -f /usr/share/openocd/scripts/boards/twr-k60n512.cfg
+Open On-Chip Debugger 0.8.0-dev-00176-ga45b735-dirty (2015-02-10-13:25)
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.sourceforge.net/doc/doxygen/bugs.html
+Info : only one transport option; autoselect 'jtag'
+cortex_m reset_config sysresetreq
+Info : add flash_bank kinetis pflash.0
+Info : add flash_bank kinetis pflash.1
+adapter speed: 5000 kHz
+Info : OSBDM has opened
+Info : This adapter doesn't support configurable speed
+Info : JTAG tap: k60.cpu tap/device found: 0x4ba00477 (mfg: 0x23b, part: 0xba00, ver: 0x4)
+START...
+Info : k60.cpu: hardware has 6 breakpoints, 4 watchpoints
+---------------------------------
 
-on another terminal, run the foloowing commands:
+on another terminal, run the following commands:
+-----------------------------------------------
 arm-none-eabi-gdb
 (gdb) cd /path-to-your-repo/
 (gdb) make
-(gdb) target remote localhost:3333
-(gdb) monitor reset halt
-(gdb) file out/k60_gpio_demo.elf
-(gdb) load
+(gdb) target remote :3333
+Remote debugging using :3333
+Reset_Handler () at startup_k60.c:416
+416	{
 (gdb) monitor reset init
+JTAG tap: k60.cpu tap/device found: 0x4ba00477 (mfg: 0x23b, part: 0xba00, ver: 0x4)
+target state: halted
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x00000a00 msp: 0x20000000
+(gdb) file out/k60_gpio_demo.elf 
+Load symbol table from "out/k60_gpio_demo.elf"? (y or n) y
+Reading symbols from out/k60_gpio_demo.elf...done.
+(gdb) load
+Loading section .vectortable, size 0x410 lma 0x0
+Loading section .text, size 0x5b0 lma 0x800
+Loading section .data, size 0x30 lma 0xdb0
+Start address 0xa00, load size 2544
+Transfer rate: 5 KB/sec, 848 bytes/write.
+(gdb) monitor reset init
+JTAG tap: k60.cpu tap/device found: 0x4ba00477 (mfg: 0x23b, part: 0xba00, ver: 0x4)
+target state: halted
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x00000a00 msp: 0x20000000
 (gdb) c
+Continuing.
+Note: automatically using hardware breakpoints for read-only addresses.
+-----------------------------------------------
+
 
 You should see two blinking LEDs and on pressing button SW1, the other two should toggle and send a string to a PC terminal
 To open the PC serial terminal, run the following commands:
-
+-----------------------------------------------------------
 sudo apt-get install gtk-term
 sudo chmod 777 /dev/ttyACM*
 gtk-term
+-----------------------------------------------------------
 
 On Gtk-term, go to Configuration->Port menu and select the following settings:
 Port: ttyACM0
@@ -34,6 +74,30 @@ Parity: None
 Bits: 8
 Stopbits:1
 Flow control: none
+
+To test sending data to TWR from PC, press CTL+C, set a breakpoint at main.c line 46:
+-------------------------------------------------------------------------------------
+^C
+Program received signal SIGINT, Interrupt.
+0x00000cf4 in uart_getchar (channel=0x400eb000) at system_k60.c:116
+116		while (!(UART_S1_REG(channel) & UART_S1_RDRF_MASK));
+(gdb) b main.c:46
+Note: breakpoint 1 also set at pc 0x846.
+Breakpoint 2 at 0x846: file main.c, line 46.
+(gdb) monitor reset init
+JTAG tap: k60.cpu tap/device found: 0x4ba00477 (mfg: 0x23b, part: 0xba00, ver: 0x4)
+target state: halted
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x00000a00 msp: 0x20000000
+(gdb) c
+Continuing.
+-------------------------------------------------------------------------------------------
+
+press character A on the keyboard while on Gtk-term, inspect the contents of variable byte2
+-------------------------------------------------------------------------------------------
+(gdb) p byte
+$1 = 97 'a'
+-------------------------------------------------------------------------------------------
 
 Next, modify the program so that:
 whenever a number character is sent from the computer keyboard (0-9), the binary equivalent is displayed on the 4 LEDs(E1 is MSB)
