@@ -1,1 +1,45 @@
-A bare minimum implementation for the Freescale Tower KIT
+A bare minimum implementation for the Freescale Tower KIT as a starting point for Embedded Lab
+Implemented:
+-> 4 LEDs 
+-> one button interrupt
+-> a serial port (UART5) through the osbdm port to the PC
+
+To do:
+make and program the kit with the .elf file generated:
+one one terminal run this command:
+openocd -c "interface osbdm" -f /usr/share/openocd/scripts/boards/twr-k60n512.cfg
+
+on another terminal, run the foloowing commands:
+arm-none-eabi-gdb
+(gdb) cd /path-to-your-repo/
+(gdb) make
+(gdb) target remote localhost:3333
+(gdb) monitor reset halt
+(gdb) file out/k60_gpio_demo.elf
+(gdb) load
+(gdb) monitor reset init
+(gdb) c
+
+You should see two blinking LEDs and on pressing button SW1, the other two should toggle and send a string to a PC terminal
+To open the PC serial terminal, run the following commands:
+
+sudo apt-get install gtk-term
+sudo chmod 777 /dev/ttyACM*
+gtk-term
+
+On Gtk-term, go to Configuration->Port menu and select the following settings:
+Port: ttyACM0
+Baud Rate: 38400
+Parity: None
+Bits: 8
+Stopbits:1
+Flow control: none
+
+Next, modify the program so that:
+whenever a number character is sent from the computer keyboard (0-9), the binary equivalent is displayed on the 4 LEDs(E1 is MSB)
+
+Next, choose one peripheral amongs [TSI(LED touchpads), USB, ADC(On-board Potentiometer), UART!=UART5 or ETH(Ethernet)] and configure it to work
+Clearly describe and illustrate your tests
+
+Good luck.
+
