@@ -1,7 +1,7 @@
 /*
  * File: main.c
  *
- * Copyright (c) 2013, 0xc0170
+ * Copyright (c) 2015, karfes@gmail.com
  *
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
@@ -10,83 +10,114 @@
  * http://www.wtfpl.net/ for more details.
  *
  */
-#include "common.h"
-#include "system_k60.h"
-#include "main.h"
+#include "Mk60.h"
 
-static void gpio_init(void);
-static void delay(void);
+extern void SystemInit(void);
+//extern void init_uart(UART_MemMapPtr uartch, int sysclk, int baud);
+extern void uartsend(uint8_t ch);
+extern void puts(uint8_t *s);
+extern char uart_read(void);
+extern uint16_t data_ready(void);
 
-/**
- * \brief  LED1 Toggle with a delay, button SW1 toggles LED2 (ISR)
- *
- * \param  void
- *
- * \return void
- */
-int main(void)
-{
-  SystemInit();
 
-  NVICICPR2 |= 1 << (87 & 0x1F);
-  NVICISER2 |= 1 << (87 & 0x1F);
+void gpio_init(void);
+void delay(void);
+void toggle_LED1(void);
+void toggle_LED2(void);
 
-  gpio_init();
+//int core_clk_mhz = 96;
+//int periph_clk_khz;
 
-  LED1_OFF;
-  LED2_OFF;
-
-  while(1)
-  {
-    LED1_TOGGLE;
-
-    delay();
-  }
+int main(void){	
+	//initialize system
+	char byte=0, byte2;
+	SystemInit();
+	
+	//clear all interrupts and enable interrupts
+	nvic->ICPR[2] |= 1 << (87 & 0x1F); //NVICICPR2 |= 1 << (87 & 0x1F);//Interrupt Clear Pending Register
+	nvic->ISER[2] |= 1 << (87 & 0x1F); //NVICISER2 |= 1 << (87 & 0x1F);//Interrupt Set Enable Register
+	
+	//initialize GPIO ports
+	gpio_init();
+	//init_uart();
+	//infinite loop
+	while(1)
+	{
+		toggle_LED1(); 
+		delay();
+		if(data_ready){
+			byte = uart_read();
+		}
+		byte2=byte;
+		delay();
+	}
 }
 
 /**
- * \brief  Button and LED initialization
- *
- * \param  void
- *
- * \return void
+ * \brief PORTA initialization
  */
 void gpio_init(void)
 {
-  PORTA_PCR19 = PORT_PCR_MUX(1) | PORT_PCR_IRQC(0xA) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK;
-  PORTA_PCR11 = (PORT_PCR_MUX(1));
-  PORTA_PCR28 = (PORT_PCR_MUX(1));
-  GPIOA_PDDR = (LED1 | LED2);
+	//PTA19 as a button input
+	PA->PCR[19].mux = 0x01; //PortA pin 19 as GPIO
+	PA->PCR[19].irqc = 0xA; //Interrupt on falling edge
+	PA->PCR[19].pe = 0x01; //pull-up enable
+	PA->PCR[19].ps = 0x01; //select internal pull-up resistor
+	//PortA pins 10, 11, 28 and 29 as alt1=GPIO
+	PA->PCR[10].mux = 0x01;
+	PA->PCR[11].mux = 0x01;
+	PA->PCR[28].mux = 0x01;
+	PA->PCR[29].mux = 0x01;
+	//PTE8 and PTE9 as UART5
+	PE->PCR[8].mux = 0x0;	//clear default function
+	PE->PCR[9].mux = 0x0;	//clear default function
+	PE->PCR[8].mux = 0x3;	//alt3 = UART5_TX
+	PE->PCR[9].mux = 0x3; 	//a;t3 = UART5_RX
+	//GPIO port data direction Port A as output for LEDs (pin 11, 28, 29 and 10), Port E UART5(PTE8 & PTE9)
+	GPIOA->PDDR.bit_reg.bit11 = OUT;
+	GPIOA->PDDR.bit_reg.bit28 = OUT;
+	GPIOA->PDDR.bit_reg.bit29 = OUT;
+	GPIOA->PDDR.bit_reg.bit10 = OUT;
+	GPIOE->PDDR.bit_reg.bit8 = OUT; //UART5_TX is an output
+	//No need to configure GPIO for PA19 as an input, by default all pins are inputs
+	//GPIOA->PDDR.bit_reg.bit19 = IN;
+	//GPIOE->PDDR.bit_reg.bit9 = IN
 }
+
+
+
+void toggle_LED1(void){
+	GPIOA->PTOR.bit_reg.bit11 = ON;
+	GPIOA->PTOR.bit_reg.bit29 = ON;
+}
+
+void toggle_LED2(void){
+	GPIOA->PTOR.bit_reg.bit28 = ON;
+	GPIOA->PTOR.bit_reg.bit10 = ON;
+	//uartsend(0x02);
+	puts((uint8_t*)"2: Hello World\r\n");
+}
+
 
 /**
  * \brief  Port A ISR Handler
- *
- * \param  void
- *
- * \return void
  */
 void PORTA_IRQHandler(void)
 {
-  PORTA_ISFR = 0xFFFFFFFF;
-  LED2_TOGGLE;
+	PA->ISFR.word_reg = 0xFFFFFFFF; //clear Interrupt Status Register by writing ones in all bits --- why???
+	toggle_LED2(); //toggle the second LED to indicate interrupt serviced
 }
 
 /**
  * \brief  Silly delay
- *
- * \param  void
- *
- * \return void
  */
 void delay(void)
 {
   volatile unsigned int i,j;
 
-  for(i=0; i<50000; i++)
+  for(i=0; i<25000; i++)
   {
 	for(j=0; j<300; j++)
       __asm__("nop");
   }
 }
-

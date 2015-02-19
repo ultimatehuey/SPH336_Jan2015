@@ -11,7 +11,7 @@
 
 
 # toolchain specific
-TOOLCHAIN = /usr/local/gcc-arm-none-eabi-4_8-2014q2/bin/arm-none-eabi-
+TOOLCHAIN = arm-none-eabi-
 CC = $(TOOLCHAIN)gcc
 CXX = $(TOOLCHAIN)g++
 AS = $(TOOLCHAIN)gcc -x assembler-with-cpp
@@ -29,10 +29,10 @@ LD_SCRIPT := k60n512_flash.ld
 LIBS :=
 
 # directories
-INC_DIRS = . common cpu cpu/headers
-SRC_DIRS := . cpu
+INC_DIRS = .
+SRC_DIRS := . 
 OUT_DIR := out
-INC_DIRS_F = -I. $(patsubst %, -I%, $(INC_DIRS))
+#INC_DIRS_F = -I. $(patsubst %, -I%, $(INC_DIRS))
 
 # add traling / if not empty
 ifeq ($(strip $(OUT_DIR)), )
@@ -41,13 +41,12 @@ else
 	OBJ_FOLDER = $(strip $(OUT_DIR))/
 endif
 
-COMPILER_OPTIONS =	-O0 -g -ggdb -Wall -fno-strict-aliasing \
-										-fmessage-length=0 -fno-builtin -m$(INSTRUCTION_MODE) \
-										-mcpu=$(CPU) -MD -MP
+COMPILER_OPTIONS = -O0 -g -ggdb -Wall -fno-strict-aliasing -fmessage-length=0 -fno-builtin -m$(INSTRUCTION_MODE) -mcpu=$(CPU) -MD -MP
 
 DEPEND_OPTS = -MF $(OBJ_FOLDER)$(@F:.o=.d)
 
 # Flags
+#CFLAGS = $(COMPILER_OPTIONS) $(DEPEND_OPTS) $(INC_DIRS_F) -c
 CFLAGS = $(COMPILER_OPTIONS) $(DEPEND_OPTS) $(INC_DIRS_F) -c
 CXXFLAGS = $(COMPILER_OPTIONS) $(INC_DIRS_F) -c
 ASFLAGS = $(COMPILER_OPTIONS) $(INC_DIRS_F) -c
