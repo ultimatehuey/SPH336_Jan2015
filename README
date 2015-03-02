@@ -102,7 +102,7 @@ $1 = 97 'a'
 Next, modify the program so that:
 whenever a number character is sent from the computer keyboard (0-9), the binary equivalent is displayed on the 4 LEDs(E1 is MSB)
 
-Next, choose one peripheral amongs [TSI(LED touchpads), USB, ADC(On-board Potentiometer), UART!=UART5 or ETH(Ethernet)] and configure it to work
+Next, choose one peripheral amongs [TSI(LED touchpads), USB, ADC(On-board Potentiometer), UART(but not UART5, its already configured :P ) or ETH(Ethernet)] and configure it to work
 Clearly describe and illustrate your tests
 
 Good luck.
