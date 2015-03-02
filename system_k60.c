@@ -12,16 +12,9 @@
  */
 #include "MK60DZ10.h"
 void SystemInit(void);
-void init_uart(UART_MemMapPtr uartch, int sysclk, int baud);
-void uart_putchar (UART_MemMapPtr channel, uint8_t ch);
-void uartsend(uint8_t ch);
-void puts(uint8_t *s);
-char uart_read(void);
-uint16_t data_ready(void);
-uint16_t uart_getchar_present (UART_MemMapPtr channel);
-uint8_t uart_getchar (UART_MemMapPtr channel);
 
-int core_clk_mhz = 96;
+
+//int core_clk_mhz = 96;
 int periph_clk_khz;
 
 /**
@@ -31,116 +24,77 @@ int periph_clk_khz;
  *
  * \return void
  */
+
+//Initialize system clocks core_clk_mhz = 96;
 void SystemInit(void)
 {
-  uint32_t temp_pfapr, i;
+  uint32_t temp_pfapr;
+  char i;
 
-  SIM_SCGC5 |= (SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTB_MASK
-              | SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK
-              | SIM_SCGC5_PORTE_MASK);
-  SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;	//uart5 enabled
+  //clock the ports
+  SIM_SCGC5 |= (SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK | SIM_SCGC5_PORTE_MASK);
+
+  //uart5 enabled
+  SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;
+
+  //defaults
   MCG_C2 = 0;
+
+  //Enable LLU module
   SIM_SCGC4 |= SIM_SCGC4_LLWU_MASK;
+
+  // Release digital pins to normal mode
   LLWU_CS |= LLWU_CS_ACKISO_MASK;
+
+  //Select external reference clock, 50Mhz/256 = 6.25Mhz clock for FLL
   MCG_C1 = MCG_C1_CLKS(2) | MCG_C1_FRDIV(3);
+
+  //wait for the current source for the FLL reference clock to be external
   while (MCG_S & MCG_S_IREFST_MASK);
+
+  //wait for clock status to rise
   while (((MCG_S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x2);
 
+  //11000b divide external clock by 25: 50Mhz/25 = 2Mhz for PLL
   MCG_C5 = MCG_C5_PRDIV(0x18);
+
+  //clear C6
   MCG_C6 = 0x0;
 
+  //save FMC_PFAPR for unchanged fields
   temp_pfapr = FMC_PFAPR;
 
   FMC_PFAPR |= FMC_PFAPR_M7PFD_MASK | FMC_PFAPR_M6PFD_MASK | FMC_PFAPR_M5PFD_MASK
-             | FMC_PFAPR_M4PFD_MASK | FMC_PFAPR_M3PFD_MASK | FMC_PFAPR_M2PFD_MASK
-             | FMC_PFAPR_M1PFD_MASK | FMC_PFAPR_M0PFD_MASK;
+            | FMC_PFAPR_M4PFD_MASK | FMC_PFAPR_M3PFD_MASK | FMC_PFAPR_M2PFD_MASK
+            | FMC_PFAPR_M1PFD_MASK | FMC_PFAPR_M0PFD_MASK;
+
 
   SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1)
               | SIM_CLKDIV1_OUTDIV3(1) | SIM_CLKDIV1_OUTDIV4(3);
 
   for (i = 0 ; i < 4 ; i++);
 
+  //restore FMC_PFAPR
   FMC_PFAPR = temp_pfapr;
 
+  //PLL selected, 11000b multiply PLL by 48 -> 2Mhz * 48 = core 96Mhz
   MCG_C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV(24);
+
+  //wait for PLL clock source to show up
   while (!(MCG_S & MCG_S_PLLST_MASK));
 
+  //wait for PLL to lock
   while (!(MCG_S & MCG_S_LOCK_MASK));
+
+  //Output of FLL or PLL is selected as source for MCGOUTCLK
   MCG_C1 &= ~MCG_C1_CLKS_MASK;
+
+  //wait for output of the PLL to show up as selected clock
   while (((MCG_S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x3);
 
+  //Calculate the peripheral clock in KHz
   periph_clk_khz = 96000 / (((SIM_CLKDIV1 & SIM_CLKDIV1_OUTDIV2_MASK) >> 24) + 1);
-  init_uart(UART5_BASE_PTR,periph_clk_khz,38400);
 }
 
-void init_uart(UART_MemMapPtr uartch, int sysclk, int baud){
-	uint16_t ubd, temp, brfa;
-	/* Make sure that the transmitter and receiver are disabled while we
-	* change settings.
-	*/
-	UART_C2_REG(uartch) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
-	/* Configure the UART for 8-bit mode, no parity */
-	/* We need all default settings, so entire register is cleared */
-	UART_C1_REG(uartch) = 0;
-	/* Configure the UART for 8-bit mode, no parity */
-	/* We need all default settings, so entire register is cleared */
-	UART_C1_REG(uartch) = 0;
-	/* Calculate baud settings */
-	ubd = (uint16_t)((sysclk*1000)/(baud * 16));
-	/* Save off the current value of the UARTx_BDH except for the SBR */
-	temp = UART_BDH_REG(uartch) & ~(UART_BDH_SBR(0x1F));
-	UART_BDH_REG(uartch) = temp | UART_BDH_SBR(((ubd & 0x1F00) >> 8));
-	UART_BDL_REG(uartch) = (uint8_t)(ubd & UART_BDL_SBR_MASK);
-	/* Determine if a fractional divider is needed to get closer to the baud rate */
-	brfa = (((sysclk*32000)/(baud * 16)) - (ubd * 32));
-	/* Save off the current value of the UARTx_C4 register except for the BRFA */
-	temp = UART_C4_REG(uartch) & ~(UART_C4_BRFA(0x1F));
-	UART_C4_REG(uartch) = temp | UART_C4_BRFA(brfa);
-	/* Enable receiver and transmitter */
-	UART_C2_REG(uartch) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
-	//UART_S1_REG(uartch) &= ~UART_S1_TDRE_MASK;
-}
 
-void uart_putchar (UART_MemMapPtr channel, uint8_t ch)
-{
-	/* Wait until space is available in the FIFO */
-	while(!(UART_S1_REG(channel) & UART_S1_TDRE_MASK));
-
-	/* Send the character */
-	UART_D_REG(channel) = (uint8_t)ch;
-}
-
-uint8_t uart_getchar (UART_MemMapPtr channel)
-{
-	/* Wait until character has been received */
-	while (!(UART_S1_REG(channel) & UART_S1_RDRF_MASK));
-
-	/* Return the 8-bit data from the receiver */
-	return (uint8_t)UART_D_REG(channel);
-}
-
-uint16_t uart_getchar_present (UART_MemMapPtr channel)
-{
-	return (uint16_t)(UART_S1_REG(channel) & UART_S1_RDRF_MASK);
-}
-
-uint16_t data_ready(void){
-	return uart_getchar_present (UART5_BASE_PTR);
-}
-
-char uart_read(void){
-	return uart_getchar (UART5_BASE_PTR);
-}
-
-//send a char to UART5_TX
-void uartsend(uint8_t ch){
-	uart_putchar (UART5_BASE_PTR,ch);
-}
-
-//send a string
-void puts(uint8_t *s){
-	while(*s!='\0'){
-		uartsend(*s++);
-	}
-}
 

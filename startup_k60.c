@@ -413,7 +413,7 @@ void Default_Handler(void)
  * \return void
  */
 void Reset_Handler(void)
-{
+	{
   	unsigned char *source;
   	unsigned char *destination;
 	/* watchdog disable */

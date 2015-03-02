@@ -1,9 +1,9 @@
 #ifndef generics_h
 #define generics_h
-#define OUT 1
-#define IN  0
-#define ON 1
-#define OFF 0
+#define out 1
+#define in  0
+#define on 1
+#define off 0
 //Shut compiler errors :)
 #ifdef __UINT8_TYPE__
 typedef __UINT8_TYPE__ uint8_t;

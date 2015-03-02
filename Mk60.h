@@ -68,7 +68,7 @@ typedef struct {
 /** PORTs - Ports registers and Register structure*/
 //Pin Control Register Structure
 typedef struct {
-volatile int
+volatile unsigned int
 ps:1, //Pull Select, 0: internal pull-down resistor, 1: internal pull-up resistor :: Pull Enable(pe below) bit has to be set first
 pe:1, //Pull Enable, 0: internal pull-up/down disabled, 1: internal pull-up/down enabled :: Provided pin is configured as a digital input
 sre:1, //Slew Rate Enable, 0: fast 1: slow :: pins have to be digital outputs 
@@ -103,7 +103,7 @@ typedef struct {
 
 
 /** WDOG - Peripheral register structure */
-/*typedef struct {
+typedef struct {
   uint16_t STCTRLH;                                //< Watchdog Status and Control Register High, offset: 0x0 
   uint16_t STCTRLL;                                //< Watchdog Status and Control Register Low, offset: 0x2 
   uint16_t TOVALH;                                 //< Watchdog Time-out Value Register High, offset: 0x4 
@@ -117,7 +117,7 @@ typedef struct {
   uint16_t RSTCNT;                                 //< Watchdog Reset Count Register, offset: 0x14 
   uint16_t PRESC;                                  //< Watchdog Prescaler Register, offset: 0x16 
 } volatile *WDOG;
-*/
+
 
 
 /** NVIC - Peripheral register structure */
@@ -141,7 +141,7 @@ typedef struct {
 /** CPUID - The CPU Identification Number 
 *	Implementer(8)|Variant(4)|Constant(4)[=0xF]|PartNo(11)|revision(4) 
 */
-/*
+
 typedef struct{
 	volatile int 
 	revision:4,		//Indicates patch release: 0x1 = Patch 1.
@@ -150,319 +150,13 @@ typedef struct{
 	variant:4,		//Indicates part number: 0xC24 = Cortex-M4
 	implementer:8;	//Indicates patch release: 0x1 = Patch 1.
 } volatile *CPUID;
-*/
 
 /*--------------------------------
-	END OF INTERNALS[WDOG,NVIC,CPUID]
- --------------------------------*/
-
-
-/*--------------------------------
-	SIM - System Integration Module REGISTERS
- --------------------------------*/
-//scgc1
-typedef struct{
-	volatile int
-	padding1:10,	//always zero
-	uart4:1,		//UART4 clock gating
-	uart5:1,		//UART5 clock gating
-	padding2:9,		//always zero
-	padding3:1,
-	padding4:2,
-	padding5:1,
-	padding6:7;
-} volatile scgc1;
-
-//scgc2
-typedef struct{
-	volatile int
-	enet:1,			//ENET Clock Gate Control
-	padding1:11,	//always zero
-	dac0:1,			//DAC0 Clock Gate Control
-	dac1:1,			//DAC1 Clock Gate Control
-	padding:18;		//always zero
-} volatile scgc2;
-
-//scgc3
-typedef struct{
-	volatile int
-	rngb:1,		//RNGB Clock Gate Control
-	padding1:3,	//always zero
-	flexcan1:1,	//FlexCAN1 Clock Gate Control
-	padding2:7,	//always zero
-	spi2:1,		//SPI2 Clock Gate Control
-	padding3:4,	//always zero
-	sdhc:1,		//SDHC Clock Gate Control
-	padding4:6,	//always zero
-	ftm2:1,		//FTM2 Clock Gate Control
-	padding5:2,	//always zero
-	adc1:1,		//ADC1 Clock Gate Control
-	padding6:2,
-	padding7:1,
-	padding8:1;
-} volatile scgc3;
-
-//scgc4
-typedef struct{
-	volatile int
-	padding1:1,	//always zero
-	ewm:1,		//EWM Clock Gate Control
-	cmt:1,		//CMT Clock Gate Control
-	padding2:1,	//always zero
-	padding3:2,	//always one
-	i2c0:1,		//I2C0 Clock Gate Control
-	i2c1:1,		//I2C1 Clock Gate Control
-	padding4:1,	//always zero
-	uart0:1,	//UART0 Clock Gate Control
-	uart1:1,	//UART1 Clock Gate Control
-	uart2:1,	//UART2 Clock Gate Control
-	uart3:1,	//UART3 Clock Gate Control
-	padding5:4,	//always zero
-	usbotg:1,	//USB Clock Gate Control
-	cmp:1,		//Comparator  Clock Gate Control
-	vref:1,		//Vref Clock Gate Control
-	padding6:7,	//always zero
-	llwu:1,		//LLWU Clock Gate Control
-	padding7:2,	//always one
-	padding8:1;	//always zero
-} volatile scgc4;
-//SCGC5
-typedef struct{
-	volatile int
-	lptimer:1, 		//Low Power Timer Clock Gate Control
-	regfile:1, 		//Register File Clock Gate Control
-	padding1:3, 	//always zero
-	tsi:1, 			//TSI Clock Gate Control
-	padding2:1, 	//always zero
-	padding3:2,		//always one
-	portA:1,		//Port A Clock Gate Control
-	portB:1,		//Port A Clock Gate Control
-	portC:1,		//Port A Clock Gate Control
-	portD:1,		//Port A Clock Gate Control
-	portE:1,		//Port A Clock Gate Control
-	padding4:4,		//always zero
-	padding5:1,		//always one
-	padding6:13;	//always zero
-} volatile scgc5;
-
-typedef struct {
-	volatile int
-	ftfl:1,		//Flash Memory Clock Gate Control
-	dmamux:1,	//DMA Mux Clock Gate Control
-	padding1:2,	//always zero
-	flexcan0:1,	//FlexCAN0 Clock Gate Control
-	padding2:7,	//always zero
-	spi0:1,		//SPI0 Clock Gate Control
-	spi1:1,		//SPI1 Clock Gate Control
-	padding3:1,	//always zero
-	i2s:1,		//I2S Clock Gate Control
-	padding4:2,	//always zero
-	crc:1,		//CRC Clock Gate Control
-	padding5:2,	//always zero
-	usbdcd:1,	//USB DCD Clock Gate Control
-	pdb:1,		//PDB Clock Gate Control
-	pit:1,		//PIT Clock Gate Control
-	ftm0:1,		//FTM0 Clock Gate Control
-	ftm1:1,		//FTM1 Clock Gate Control
-	padding6:1,	//always zero
-	adc0:1,		//ADC0 Clock Gate Control
-	padding7:1,	//always zero
-	rtc:1,		//RTC Clock Gate Control
-	padding8:1,	//always one
-	padding9:1;	//always zero
-} volatile scgc6;
-
-typedef struct{
-	volatile int
-	flexbus:1,	//FlexBus Clock Gate Control
-	dma:1,		//DMA Clock Gate Control
-	mpu:1,		//MPU Clock Gate Control
-	padding:29;
-}volatile scgc7;
-
-typedef struct{
-	volatile int
-	padding:16,	//always zero
-	outdiv4:4,	//divide value for flash clock[0000=divide by 1, 0001=divide by 2,... 1111=divide by 16]
-	outdiv3:4,	//FlexBus clock driven to the external pin (FB_CLK)[0000=divide by 1, 0001=divide by 2,... 1111=divide by 16]
-	outdiv2:4,	//divide value for peripheral clock[0000=divide by 1, 0001=divide by 2,... 1111=divide by 16]
-	outdiv1:4;	//divide value for the core/system clock[0000=divide by 1, 0001=divide by 2,... 1111=divide by 16]
-} volatile clkdiv1;
-
-/** SIM - Peripheral register structure */
-typedef struct{
-  uint32_t SOPT1;                                  /**< System Options Register 1, offset: 0x0 */
-  uint8_t RESERVED_0[4096];
-  uint32_t SOPT2;                                  /**< System Options Register 2, offset: 0x1004 */
-  uint8_t RESERVED_1[4];
-  uint32_t SOPT4;                                  /**< System Options Register 4, offset: 0x100C */
-  uint32_t SOPT5;                                  /**< System Options Register 5, offset: 0x1010 */
-  uint32_t SOPT6;                                  /**< System Options Register 6, offset: 0x1014 */
-  uint32_t SOPT7;                                  /**< System Options Register 7, offset: 0x1018 */
-  uint8_t RESERVED_2[8];
-  uint32_t SDID;                                   /**< System Device Identification Register, offset: 0x1024 */
-  scgc1 SCGC1;                                  /**< System Clock Gating Control Register 1, offset: 0x1028 */
-  scgc2 SCGC2;                                  /**< System Clock Gating Control Register 2, offset: 0x102C */
-  scgc3 SCGC3;                                  /**< System Clock Gating Control Register 3, offset: 0x1030 */
-  scgc4 SCGC4;                                  /**< System Clock Gating Control Register 4, offset: 0x1034 */
-  scgc5 SCGC5;                                  /**< System Clock Gating Control Register 5, offset: 0x1038 */
-  scgc6 SCGC6;                                  /**< System Clock Gating Control Register 6, offset: 0x103C */
-  scgc7 SCGC7;                                  /**< System Clock Gating Control Register 7, offset: 0x1040 */
-  clkdiv1 CLKDIV1;                                /**< System Clock Divider Register 1, offset: 0x1044 */
-  uint32_t CLKDIV2;                                /**< System Clock Divider Register 2, offset: 0x1048 */
-  uint32_t FCFG1;                                  /**< Flash Configuration Register 1, offset: 0x104C */
-  uint32_t FCFG2;                                  /**< Flash Configuration Register 2, offset: 0x1050 */
-  uint32_t UIDH;                                   /**< Unique Identification Register High, offset: 0x1054 */
-  uint32_t UIDMH;                                  /**< Unique Identification Register Mid-High, offset: 0x1058 */
-  uint32_t UIDML;                                  /**< Unique Identification Register Mid Low, offset: 0x105C */
-  uint32_t UIDL;                                   /**< Unique Identification Register Low, offset: 0x1060 */
-} volatile *SIM;
-/*--------------------------------
-	END OF SIM
- --------------------------------*/
-
-
-/* ------------------------------
-   -- MCG
-   ---------------------------- */
-//c1
-typedef struct{
-	volatile uint8_t
-	irefsten:1,		//Internal Reference Stop Enable
-	irclken:1,		//Internal Reference Clock Enable
-	irefs:1,		//Internal Reference Select
-	frdiv:3,		//FLL External Reference Divider
-	clks:2;			//Clock Source Select
-} volatile c1;
-
-typedef union{
-	c1 bit_reg;
-	uint8_t byte_reg;
-} dualc1;
-
-//c2
-typedef struct{
-	volatile uint8_t
-	ircs:1,		//Internal Reference Clock Select
-	lp:1,		//Low Power Select
-	erefs:1,	//External Reference Select
-	hgo:1,		//High Gain Oscillator Select
-	range:2,	//Frequency Range Select
-	padding1:1,	//reserved
-	padding2:1;	//reserved	
-} volatile c2;
-
-typedef union{
-	c2 bit_reg;
-	uint8_t byte_reg;
-}dualc2;
-
-typedef struct{
-	volatile uint8_t 
-	prdiv:5,	//PLL External Reference Divider[00000=divide by 1, 00001=divide by 2..... 11000=divide by 25]
-	pllsten:1,	//PLL Stop Enable[Enables the PLL Clock during Normal Stop, but not in Low Power Mode]
-	pllclken:1,	//PLL Clock Enable[Enables the PLL independent of PLLS and enables the PLL clock for use as MCGPLLCLK]
-				//PRDIV needs to be programmed to the correct divider to generate a PLL reference clock in the range of 2 - 4MHz range prior to setting the PLLCLKEN bit
-				//the OSCINIT bit should be checked to makesure it is set
-	padding:1;
-} volatile c5;
-
-typedef struct{
-	volatile int
-	vdiv:5,		//VCO Divider
-	cme:1,		//Clock Monitor Enable
-	plls:1,		//PLL Select
-	lolie:1;	//Loss of lock interrupt enable
-} volatile c6;
-
-typedef union{
-	c6 bit_reg;
-	uint8_t byte_reg;
-} dualc6;
-
-typedef struct{
-	volatile uint8_t 
-	ircst:1,	//Internal Reference Clock Status[indicates the current source for the internal reference clock select clock (IRCSCLK)]
-	oscinit:1,	//OSC Initialization, set to 1 when OSC init cycles are completed
-	clkst:2,	//Clock Mode Status [indicate the current clock mode, not immediately after a write to the CLKS]
-	irefst:1,	//Internal Reference Status[indicates the current source for the FLL reference clock, not immediately after a write to the IREFS]
-	pllst:1,	//PLL Select Status[indicates the clock source selected by PLLS, not immediately after a write to the PLLS]
-	lock:1,		//Lock Status[indicates whether the PLL has acquired lock, ]
-	lols:1;		//Loss of Lock Status
-} volatile s;
-
-/** MCG - Peripheral register structure */
-typedef struct{
-  dualc1 C1;				/**< MCG Control 1 Register, offset: 0x0 */
-  dualc2 C2;			/**< MCG Control 2 Register, offset: 0x1 */
-  uint8_t C3;			/**< MCG Control 3 Register, offset: 0x2 */
-  uint8_t C4;			/**< MCG Control 4 Register, offset: 0x3 */
-  c5 C5;			/**< MCG Control 5 Register, offset: 0x4 */
-  dualc6 C6;			/**< MCG Control 6 Register, offset: 0x5 */
-  s S;					/**< MCG Status Register, offset: 0x6 */
-  uint8_t RESERVED_0[1];
-  uint8_t ATC;			/**< MCG Auto Trim Control Register, offset: 0x8 */
-  uint8_t RESERVED_1[1];
-  uint8_t ATCVH;		/**< MCG Auto Trim Compare Value High Register, offset: 0xA */
-  uint8_t ATCVL;		/**< MCG Auto Trim Compare Value Low Register, offset: 0xB */
-} volatile *MCG;
-
-/*--------------------------------
-	END OF MCG
- --------------------------------*/
-
-/* ----------------------------------------------------------------------------
-   -- LLWU PERIPHERAL
-   ---------------------------------------------------------------------------- */
-//CS 
-typedef struct{
-	volatile int
-	fltr:1,		//Digital Filter on RESET Pin
-	fltep:1,	//Digital Filter on External Pin
-	padding1:1,	//reserved
-	padding2:4,	//always zero
-	ackiso:1;	//Acknowledge Isolation
-} volatile cs;
-
-/** LLWU - Peripheral register structure */
-typedef struct{
-  uint8_t PE1;                                     /**< LLWU Pin Enable 1 Register, offset: 0x0 */
-  uint8_t PE2;                                     /**< LLWU Pin Enable 2 Register, offset: 0x1 */
-  uint8_t PE3;                                     /**< LLWU Pin Enable 3 Register, offset: 0x2 */
-  uint8_t PE4;                                     /**< LLWU Pin Enable 4 Register, offset: 0x3 */
-  uint8_t ME;                                      /**< LLWU Module Enable Register, offset: 0x4 */
-  uint8_t F1;                                      /**< LLWU Flag 1 Register, offset: 0x5 */
-  uint8_t F2;                                      /**< LLWU Flag 2 Register, offset: 0x6 */
-  uint8_t F3;                                      /**< LLWU Flag 3 Register, offset: 0x7 */
-  cs CS;                                      /**< LLWU Control and Status Register, offset: 0x8 */
-} volatile *LLWU;
-/*--------------------------------
-	END OF LLWU
- --------------------------------*/
-/* ------------------------------
-   -- FMC
-   ---------------------------- */
-
-/** FMC - Peripheral register structure */
-typedef struct{
-  uint32_t PFAPR;                                  /**< Flash Access Protection Register, offset: 0x0 */
-  uint32_t PFB0CR;                                 /**< Flash Bank 0 Control Register, offset: 0x4 */
-  uint32_t PFB1CR;                                 /**< Flash Bank 1 Control Register, offset: 0x8 */
-  uint8_t RESERVED_0[244];
-  uint32_t TAGVD[4][8];                            /**< Cache Directory Storage, array offset: 0x100, array step: index*0x20, index2*0x4 */
-  uint8_t RESERVED_1[128];
-  struct {                                         /* offset: 0x200, array step: index*0x40, index2*0x8 */
-    uint32_t DATA_U;                                 /**< Cache Data Storage (upper word), array offset: 0x200, array step: index*0x40, index2*0x8 */
-    uint32_t DATA_L;                                 /**< Cache Data Storage (lower word), array offset: 0x204, array step: index*0x40, index2*0x8 */
-  } SET[4][8];
-} volatile *FMC;
-
-/*--------------------------------
-	END OF FMC
+	OSCI
  --------------------------------*/
 
 typedef struct{
-	volatile int
+	volatile unsigned char
 	sc16p:1,	//Oscillator 16 pF Capacitor Load Configure
 	sc8p:1,		//Oscillator 8 pF Capacitor Load Configure
 	sc4p:1,
@@ -474,44 +168,7 @@ typedef struct{
 } volatile *OSCI_CR;
 
 
-/** UART - Peripheral register structure */
-typedef struct{
-  uint8_t BDH;                                     /**< UART Baud Rate Registers:High, offset: 0x0 */
-  uint8_t BDL;                                     /**< UART Baud Rate Registers: Low, offset: 0x1 */
-  uint8_t C1;                                      /**< UART Control Register 1, offset: 0x2 */
-  uint8_t C2;                                      /**< UART Control Register 2, offset: 0x3 */
-  uint8_t S1;                                      /**< UART Status Register 1, offset: 0x4 */
-  uint8_t S2;                                      /**< UART Status Register 2, offset: 0x5 */
-  uint8_t C3;                                      /**< UART Control Register 3, offset: 0x6 */
-  uint8_t D;                                       /**< UART Data Register, offset: 0x7 */
-  uint8_t MA1;                                     /**< UART Match Address Registers 1, offset: 0x8 */
-  uint8_t MA2;                                     /**< UART Match Address Registers 2, offset: 0x9 */
-  uint8_t C4;                                      /**< UART Control Register 4, offset: 0xA */
-  uint8_t C5;                                      /**< UART Control Register 5, offset: 0xB */
-  uint8_t ED;                                      /**< UART Extended Data Register, offset: 0xC */
-  uint8_t MODEM;                                   /**< UART Modem Register, offset: 0xD */
-  uint8_t IR;                                      /**< UART Infrared Register, offset: 0xE */
-  uint8_t RESERVED_0[1];
-  uint8_t PFIFO;                                   /**< UART FIFO Parameters, offset: 0x10 */
-  uint8_t CFIFO;                                   /**< UART FIFO Control Register, offset: 0x11 */
-  uint8_t SFIFO;                                   /**< UART FIFO Status Register, offset: 0x12 */
-  uint8_t TWFIFO;                                  /**< UART FIFO Transmit Watermark, offset: 0x13 */
-  uint8_t TCFIFO;                                  /**< UART FIFO Transmit Count, offset: 0x14 */
-  uint8_t RWFIFO;                                  /**< UART FIFO Receive Watermark, offset: 0x15 */
-  uint8_t RCFIFO;                                  /**< UART FIFO Receive Count, offset: 0x16 */
-  uint8_t RESERVED_1[1];
-  uint8_t C7816;                                   /**< UART 7816 Control Register, offset: 0x18 */
-  uint8_t IE7816;                                  /**< UART 7816 Interrupt Enable Register, offset: 0x19 */
-  uint8_t IS7816;                                  /**< UART 7816 Interrupt Status Register, offset: 0x1A */
-  union {                                          /* offset: 0x1B */
-    uint8_t WP7816_T_TYPE0;                          /**< UART 7816 Wait Parameter Register, offset: 0x1B */
-    uint8_t WP7816_T_TYPE1;                          /**< UART 7816 Wait Parameter Register, offset: 0x1B */
-  };
-  uint8_t WN7816;                                  /**< UART 7816 Wait N Register, offset: 0x1C */
-  uint8_t WF7816;                                  /**< UART 7816 Wait FD Register, offset: 0x1D */
-  uint8_t ET7816;                                  /**< UART 7816 Error Threshold Register, offset: 0x1E */
-  uint8_t TL7816;                                  /**< UART 7816 Transmit Length Register, offset: 0x1F */
-} volatile *UART;
+
 
 /*--------------------------------
 	Peripheral instances
@@ -530,14 +187,7 @@ GPIO GPIOA = (GPIO)porta;
 //GPIO PTD = (GPIO)portd;
 GPIO GPIOE = (GPIO)porte;
 
-//mcg instance 
-MCG mcg = (MCG)mcgbase;
 
-//llwu instance
-LLWU llwu = (LLWU)llwubase;
-
-//sim instance 
-SIM sim = (SIM)simbase;
 
 //cpuid instance
 //CPUID cpuid = (CPUID)cpuidbase;
@@ -546,9 +196,9 @@ SIM sim = (SIM)simbase;
 NVIC nvic = (NVIC)nvicbase;
 
 //FMC instance
-FMC fmc = (FMC)fmcbase;
+//FMC fmc = (FMC)fmcbase;
 
 OSCI_CR osci = (OSCI_CR)0x40065000u;
 
-UART uart5 = (UART)uart5base;
+//UART uart5 = (UART)uart5base;
 

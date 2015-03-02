@@ -107,3 +107,8 @@ Clearly describe and illustrate your tests
 
 Good luck.
 
+UPDATES: 
+Cleaned the project, seperated the sysinit, GPIO and UART from main file.
+Important!! We cannot do bifields with ARM peripherals because the compiler does not allow tightly packed structs,
+for 8-bit(byte) and 16-bit(short) registers, there are problems with word alignment, so strictly use the Vendor .h file
+MK60DZ10.h definitions and register access methods as in the UART section of the code in this repo.
