@@ -69,7 +69,7 @@ gtk-term
 
 On Gtk-term, go to Configuration->Port menu and select the following settings:
 Port: ttyACM0
-Baud Rate: 38400
+Baud Rate: 57600
 Parity: None
 Bits: 8
 Stopbits:1
