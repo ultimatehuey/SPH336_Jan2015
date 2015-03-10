@@ -10,9 +10,10 @@
  * http://www.wtfpl.net/ for more details.
  *
  */
-
+#include<ctype.h>
 #include"gpio.h"
 #include"uart.h"
+#include "led_blinker.h"
 
 
 void delay(void);
@@ -39,15 +40,20 @@ int main(void){
 	//Loop forever
 	while(1)
 	{
-		toggle_LED1(); 
-		delay();
+		//toggle_LED1();
+
 		if(data_available()){
 			byte = uart_read();
+			if (isdigit(byte)){
+				led_blinker(byte);
+			}
+			else{
+				main();
+			}
 		}
-		delay();
 	}
-}
-
+}                          //// removed most of the delays they were making 
+                           //// my implementation slow!!!!!
 
 
 
@@ -65,3 +71,4 @@ void delay(void)
       __asm__("nop");
   }
 }
+
