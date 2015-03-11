@@ -10,7 +10,6 @@
  * http://www.wtfpl.net/ for more details.
  *
  */
-#include<ctype.h>
 #include"gpio.h"
 #include"uart.h"
 #include "led_blinker.h"
@@ -23,7 +22,6 @@ void delay(void);
 int main(void){	
 	//temporally UART data holder
 	uint8_t byte=0;
-
 	//initialize system
 	SystemInit();
 
@@ -39,22 +37,22 @@ int main(void){
 
 	//Loop forever
 	while(1)
-	{
-		//toggle_LED1();
+		{
 
-		if(data_available()){
-			byte = uart_read();
-			if (isdigit(byte)){
-				led_blinker(byte);
-			}
-			else{
-				main();
+
+
+			 if(data_available()){
+				byte = uart_read();
+				if(byte>47 && byte<58){ //numbers from 0 to 9 only
+					led_blinker(byte);}
+				else{              //new line character plus all others here
+					led_blinker((char)0x00);
+
+				}
 			}
 		}
-	}
-}                          //// removed most of the delays they were making 
-                           //// my implementation slow!!!!!
 
+}
 
 
 
@@ -71,4 +69,5 @@ void delay(void)
       __asm__("nop");
   }
 }
+
 
