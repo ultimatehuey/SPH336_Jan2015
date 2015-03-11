@@ -7,7 +7,6 @@
 
 #ifndef LED_BLINKER_H_
 #define LED_BLINKER_H_
-#include <stdio.h>
 //#include "Mk60.h"
 #include "gpio.h"
 
@@ -34,3 +33,4 @@ void  led_blinker(char byte1){
 }
 
 #endif /* LED_BLINKER_H_ */
+
