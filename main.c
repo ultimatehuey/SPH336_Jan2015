@@ -36,8 +36,9 @@ int main(void){
 		if(blink) toggle_LEDS();
 		if(data_available()){
 			byte = uart_read();
-			if(byte>47 && byte<58){	//numbers from 0 to 9 only
-				display((char)byte);
+			if((byte>47 && byte<58)||(byte>64 && byte<71)){	//numbers from 0 to 9 only
+				if(byte<58) display((char)byte-48);
+				if(byte>58) display((char)byte-55);
 				blink=0;
 			}else if(byte==0x7e){	//a tilda(~) send microcontroller information
 				display((char)0x00);

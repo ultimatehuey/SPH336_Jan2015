@@ -80,10 +80,7 @@ void display(char number){
 	for(i=0;i<4;i++){
 		bits[i]=~(number>>i)&1;
 	}
-	GPIOA->PDOR.bit_reg.bit11 = bits[0];
-	GPIOA->PDOR.bit_reg.bit28 = bits[1];
-	GPIOA->PDOR.bit_reg.bit29 = bits[2];
-	GPIOA->PDOR.bit_reg.bit10 = bits[3];
+	GPIOA->PDOR.word_reg = (uint32_t)(bits[0]<<11 | bits[1]<<28 | bits[2]<<29 | bits[3]<<10);
 }
 
 /*
