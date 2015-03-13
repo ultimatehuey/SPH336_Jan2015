@@ -10,18 +10,13 @@
  * http://www.wtfpl.net/ for more details.
  *
  */
-#include"gpio.h"
-#include"uart.h"
-#include "led_blinker.h"
 
-
-void delay(void);
-
-
+#include "main.h"
 
 int main(void){	
 	//temporally UART data holder
-	uint8_t byte=0;
+	uint8_t byte=0, blink=1;
+
 	//initialize system
 	SystemInit();
 
@@ -37,24 +32,25 @@ int main(void){
 
 	//Loop forever
 	while(1)
-		{
-
-
-
-			 if(data_available()){
-				byte = uart_read();
-				if(byte>47 && byte<58){ //numbers from 0 to 9 only
-					led_blinker(byte);}
-				else{              //new line character plus all others here
-					led_blinker((char)0x00);
-
-				}
+	{
+		if(blink) toggle_LEDS();
+		if(data_available()){
+			byte = uart_read();
+			if(byte>47 && byte<58){	//numbers from 0 to 9 only
+				display((char)byte);
+				blink=0;
+			}else if(byte==0x7e){	//a tilda(~) send microcontroller information
+				display((char)0x00);
+				sysinfo();
+				blink=0;
+			}else{					//new line character plus all others here
+				display((char)0x00);
+				blink=1;
 			}
 		}
-
+		delay();
+	}
 }
-
-
 
 /*
 	brief  Silly delay
@@ -69,5 +65,3 @@ void delay(void)
       __asm__("nop");
   }
 }
-
-

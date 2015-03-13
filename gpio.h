@@ -9,10 +9,13 @@
 #define GPIO_H_
 
 #include "Mk60.h"
+#include "main.h"
 
 void gpio_init(void);
-void toggle_LED1(void);
-void toggle_LED2(void);
+//void toggle_LED1(void);
+//void toggle_LED2(void);
+extern void toggle_LEDS(void);
+extern void toggle_LED2(void);
 extern void puts(uint8_t *s);
 extern void SystemInit(void);
 /*
@@ -46,17 +49,42 @@ void gpio_init(void)
 	//GPIOE->PDDR.bit_reg.bit9 = IN //UART5_RX is an input
 }
 
+/*
 void toggle_LED1(void){
-	GPIOA->PTOR.bit_reg.bit11 = on;
-	GPIOA->PTOR.bit_reg.bit29 = on;
+	//volatile int mask=1<<29;
+	//GPIOA->PTOR.bit_reg.bit11 = on; //0x20000000
+	//GPIOA->PTOR.bit_reg.bit29 = on;
+	asm(	".equ mask, 0x20000000;" // declare a mask for bit 29
+			"LDR R1, =0x400ff00c;" // create a pointer to GPIOA->PTOR
+			"LDR R2, [R1];" //load GPIOA->PTOR to R2 using R1 as pointer
+			"ORR R2, mask;" //mask bit 29
+			"STR R2, [R1]" //write back the result to GPIOA->PTOR
+		);
 }
-
+*/
+/*
 void toggle_LED2(void){
-	GPIOA->PTOR.bit_reg.bit28 = on;
+	//GPIOA->PTOR.bit_reg.bit28 = on;
 	GPIOA->PTOR.bit_reg.bit10 = on;
 	puts((uint8_t*)("Hello World\r\n"));
 }
-
+*/
+//display a number inbinary with the 4 LEDs
+//LED1 -> bit11
+//LED2 -> bit28
+//LED3 -> bit29
+//LED4 -> bit10
+void display(char number){
+	char bits[4]={0,0,0,0};
+	int i=0;
+	for(i=0;i<4;i++){
+		bits[i]=~(number>>i)&1;
+	}
+	GPIOA->PDOR.bit_reg.bit11 = bits[0];
+	GPIOA->PDOR.bit_reg.bit28 = bits[1];
+	GPIOA->PDOR.bit_reg.bit29 = bits[2];
+	GPIOA->PDOR.bit_reg.bit10 = bits[3];
+}
 
 /*
 	brief  Port A ISR Handler

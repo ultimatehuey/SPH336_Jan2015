@@ -69,24 +69,21 @@ gtk-term
 
 On Gtk-term, go to Configuration->Port menu and select the following settings:
 Port: ttyACM0
-Baud Rate: 57600
+Baud Rate: 38400
 Parity: None
 Bits: 8
 Stopbits:1
 Flow control: none
 
-To test sending data to TWR from PC, press CTL+C, set a breakpoint at main.c line 45 and 47:
+To test sending data to TWR from PC, press CTL+C, set a breakpoint at main.c line 46:
 -------------------------------------------------------------------------------------
 ^C
 Program received signal SIGINT, Interrupt.
 0x00000cf4 in uart_getchar (channel=0x400eb000) at system_k60.c:116
 116		while (!(UART_S1_REG(channel) & UART_S1_RDRF_MASK));
-(gdb) b main.c:45
+(gdb) b main.c:46
 Note: breakpoint 1 also set at pc 0x846.
-Breakpoint 2 at 0x846: file main.c, line 45.
-(gdb) b main.c:47
-Note: breakpoint 1 also set at pc ......
-Breakpoint 2 at ....: file main.c, line 47.
+Breakpoint 2 at 0x846: file main.c, line 46.
 (gdb) monitor reset init
 JTAG tap: k60.cpu tap/device found: 0x4ba00477 (mfg: 0x23b, part: 0xba00, ver: 0x4)
 target state: halted
@@ -96,10 +93,8 @@ xPSR: 0x01000000 pc: 0x00000a00 msp: 0x20000000
 Continuing.
 -------------------------------------------------------------------------------------------
 
-press character A on the keyboard while on Gtk-term, continue to breakpoint 2, inspect the contents of variable byte2
+press character A on the keyboard while on Gtk-term, inspect the contents of variable byte2
 -------------------------------------------------------------------------------------------
-(gdb) c
-Continuing.
 (gdb) p byte
 $1 = 97 'a'
 -------------------------------------------------------------------------------------------
@@ -107,7 +102,7 @@ $1 = 97 'a'
 Next, modify the program so that:
 whenever a number character is sent from the computer keyboard (0-9), the binary equivalent is displayed on the 4 LEDs(E1 is MSB)
 
-Next, choose one peripheral amongs [TSI(LED touchpads), USB, ADC(On-board Potentiometer), UART(but not UART5, its already configured :P ) or ETH(Ethernet)] and configure it to work
+Next, choose one peripheral amongs [TSI(LED touchpads), USB, ADC(On-board Potentiometer), UART!=UART5 or ETH(Ethernet)] and configure it to work
 Clearly describe and illustrate your tests
 
 Good luck.

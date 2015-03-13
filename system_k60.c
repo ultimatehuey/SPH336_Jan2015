@@ -11,8 +11,11 @@
  *
  */
 #include "MK60DZ10.h"
-void SystemInit(void);
+#include "string.h"
+#include"uart.h"
 
+void SystemInit(void);
+void sysinfo(void);
 
 //int core_clk_mhz = 96;
 int periph_clk_khz;
@@ -94,6 +97,60 @@ void SystemInit(void)
 
   //Calculate the peripheral clock in KHz
   periph_clk_khz = 96000 / (((SIM_CLKDIV1 & SIM_CLKDIV1_OUTDIV2_MASK) >> 24) + 1);
+}
+
+void sysinfo(void){
+	uint32_t cpuid, implementer;
+	uint8_t cpuidstr[8]={0,0,0,0,0,0,0,0}, variant, revision, variantstr[2]={0,0}, revisionstr[2];
+	uint16_t  core;
+	cpuid=SCB_CPUID;
+	//Implementer(8): 0x41 = ARM
+	implementer=(cpuid&0xff000000);
+	implementer = implementer>>24;
+	//Variant(4) 0x2 = Revision 2
+	variant=(uint8_t)((cpuid&0x00F00000)>>20);
+	//Constant(4)(Constant) Reads as 0xF
+	//PartNo(12) 0xC24 = Cortex-M4
+	core=(uint16_t)((cpuid&0x0000FFF0)>>4);
+	//revision(4) Indicates patch release: 0x1 = Patch 1.
+	revision=(uint8_t)(cpuid&0x0000000F);
+
+	//display the whole CPUID string
+	strcatNum32Hex(cpuidstr, sizeof(cpuidstr)+1, cpuid);
+	puts((uint8_t *)"CPUID: 0x");
+	puts(cpuidstr);
+	puts((uint8_t *)"\r\n");
+
+	//display the CPU implementer
+	if(implementer==0x41){
+		puts((uint8_t *)"Implementer: ARM");
+	}else{
+		puts((uint8_t *)"Implementer: Unknown");
+	}
+	puts((uint8_t *)"\r\n");
+
+	//display the cpu revision
+	puts((uint8_t *)"Variant: Revision ");
+	Num16sToStr(variantstr, sizeof(variantstr), variant);
+	puts((uint8_t *)variantstr);
+	puts((uint8_t *)"\r\n");
+
+	//display the CPU core
+	if(core==0xC24){
+		puts((uint8_t *)"Core: Cortex-M4");
+	}else if(core==0xC23){
+		puts((uint8_t *)"Core: Cortex-M3");
+	}else{
+		puts((uint8_t *)"Core: Unknown");
+	}
+
+	puts((uint8_t *)"\r\n");
+
+	//display the patch
+	puts((uint8_t *)"Patch:");
+	Num8sToStr(revisionstr, sizeof(revisionstr), (char)revision);
+	puts((uint8_t *)revisionstr);
+	puts((uint8_t *)"\r\n");
 }
 
 

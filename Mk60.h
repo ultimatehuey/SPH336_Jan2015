@@ -139,17 +139,9 @@ typedef struct {
 
 
 /** CPUID - The CPU Identification Number 
-*	Implementer(8)|Variant(4)|Constant(4)[=0xF]|PartNo(11)|revision(4) 
+*	Implementer(8)|Variant(4)|Constant(4)[=0xF]|PartNo(12)|revision(4)
 */
 
-typedef struct{
-	volatile int 
-	revision:4,		//Indicates patch release: 0x1 = Patch 1.
-	partno:12,		//Indicates part number: 0xC24 = Cortex-M4
-	constant:4,		//Reads as 0xF
-	variant:4,		//Indicates part number: 0xC24 = Cortex-M4
-	implementer:8;	//Indicates patch release: 0x1 = Patch 1.
-} volatile *CPUID;
 
 /*--------------------------------
 	OSCI
@@ -186,11 +178,6 @@ GPIO GPIOA = (GPIO)porta;
 //GPIO PTC = (GPIO)portc;
 //GPIO PTD = (GPIO)portd;
 GPIO GPIOE = (GPIO)porte;
-
-
-
-//cpuid instance
-//CPUID cpuid = (CPUID)cpuidbase;
 
 //nivc instance
 NVIC nvic = (NVIC)nvicbase;
