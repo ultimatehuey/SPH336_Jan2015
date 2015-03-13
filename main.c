@@ -36,9 +36,9 @@ int main(void){
 		if(blink) toggle_LEDS();
 		if(data_available()){
 			byte = uart_read();
-			if((byte>47 && byte<58)||(byte>64 && byte<71)){	//numbers from 0 to 9 only
-				if(byte<58) display((char)byte-48);
-				if(byte>58) display((char)byte-55);
+			if((byte>47 && byte<58)||(byte>64 && byte<71)){	//ascii characters for numbers from 0 to F only
+				if(byte<58) display((char)byte-48);			//ascii characters for numbers from 0 to 9 only
+				if(byte>58) display((char)byte-55);			//ascii characters for numbers from A to F only
 				blink=0;
 			}else if(byte==0x7e){	//a tilda(~) send microcontroller information
 				display((char)0x00);
