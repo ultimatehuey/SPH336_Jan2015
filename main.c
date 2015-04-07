@@ -11,11 +11,17 @@
  *
  */
 
-#include "main.h"
+#include"gpio.h"
+#include"uart.h"
+#include "trigger.h"
+
+void delay(void);
+
+
 
 int main(void){	
 	//temporally UART data holder
-	uint8_t byte=0, blink=1;
+	uint8_t byte=0;
 
 	//initialize system
 	SystemInit();
@@ -33,28 +39,40 @@ int main(void){
 	//Loop forever
 	while(1)
 	{
-		if(blink) toggle_LEDS();
-		if(data_available()){
-			byte = uart_read();
-			if((byte>47 && byte<58)||(byte>64 && byte<71)){	//ascii characters for numbers from 0 to F only
-				if(byte<58) display((char)byte-48);			//ascii characters for numbers from 0 to 9 only
-				if(byte>58) display((char)byte-55);			//ascii characters for numbers from A to F only
-				blink=0;
-			}else if(byte==0x7e){	//a tilda(~) send microcontroller information
-				display((char)0x00);
-				sysinfo();
-				blink=0;
-			}else{					//new line character plus all others here
-				display((char)0x00);
-				blink=1;
-			}
+		//toggle_LED1(); 
+		//delay();
+		//if(data_available()){
+		//	byte = uart_read();
+		//}
+		//delay();
+		//puts((uint8_t*)("Ready\r\n"));
+		//LOOP: 
+		//delay();
+		byte = uart_read();
+		//byte2=byte;
+		switch (byte) {
+			case '0': trigger(0); break;//toggle_LED0(); byte='n'; break;
+			case '1': trigger(1); break;//toggle_LED1(); byte='n'; break;
+			case '2': trigger(2); break;//toggle_LED2(); byte='n'; break;
+			case '3': trigger(3); break;//toggle_LED3(); byte='n'; break;
+			case '4': trigger(4); break;//toggle_LED4(); byte='n'; break;
+			case '5': trigger(5); break;//toggle_LED5(); byte='n'; break;
+			case '6': trigger(6); break;//toggle_LED6(); byte='n'; break;
+			case '7': trigger(7); break;//toggle_LED7(); byte='n'; break;
+			case '8': trigger(8); break;//toggle_LED8(); byte='n'; break;
+			case '9': trigger(9); break;//toggle_LED9(); byte='n'; break;
+			default: main(); break;//toggle_LED0(); goto LOOP; break;
 		}
 		delay();
 	}
 }
 
+
+
+
+
 /*
-	brief  Silly delay
+	brief silly delay
 */
 void delay(void)
 {
